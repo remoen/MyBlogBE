@@ -23,7 +23,7 @@ fs.readFile('resource/page.json', "utf8", (err,data) => {
 })
 
 let corsOption = {
-    origin: "http://localhost:8080",
+    origin: "http://222.100.125.234:8080",
     credentials: true,
 }
 
@@ -31,8 +31,25 @@ app.get('/', function(req, res) {
     res.send(variables.lastId.toString());
 })
 
-app.get('/page', function (req, res) {
-    res.send(JSON.stringify(pagesJson))
+app.get('/page', cors(),function (req, res) {
+    if (req.body === undefined) {
+        res.send(JSON.stringify(pagesJson))
+    } else {
+        console.log(req.body)
+        let pageArray = []
+        pagesJson.forEach(element => {
+            if (req.body === element.page) {
+                pageArray.push(element)
+            } else {
+                if (req.body < element.page) {
+                    return false;
+                }
+            }
+        })
+        let pageObject = JSON.stringify(pageArray)
+
+        res.send(JSON.stringify(pageObject))
+    }
 })
 
 app.use(express.json());
@@ -60,7 +77,7 @@ app.post('/post', cors(), function(req, res, next) {
     variables.lastId = variables.lastId + 1
     fs.writeFileSync('resource/variables.json', JSON.stringify(variables))
 
-    pagesJson[variables.lastId.toString()] = {"id": post.id, "title": post.title}
+    pagesJson[variables.lastId.toString()] = {"id": post.id, "title": post.title, "page": variables.page}
 
     fs.writeFileSync('resource/page.json', JSON.stringify(pagesJson))
     console.log({"id": post.id, "title": post.title})
