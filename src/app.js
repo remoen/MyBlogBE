@@ -6,7 +6,7 @@ const fs = require('fs')
 let variables = ''
 let pagesJson = ''
 
-fs.readFile('resource/variables.json', "utf8", (err,data) => {
+fs.readFile('resource/variables.json', "utf8", (err, data) => {
     if (err) {
         console.error(err)
         return
@@ -14,7 +14,7 @@ fs.readFile('resource/variables.json', "utf8", (err,data) => {
     variables = JSON.parse(data)
 })
 
-fs.readFile('resource/page.json', "utf8", (err,data) => {
+fs.readFile('resource/page.json', "utf8", (err, data) => {
     if (err) {
         console.error(err)
         return
@@ -27,14 +27,14 @@ let corsOption = {
     credentials: true,
 }
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.send(variables.lastId.toString());
 })
 
-app.get('/page/*', cors(),function (req, res) {
+app.get('/page/*', cors(), function (req, res) {
     let num = req.path.split('/')[2]
     let pageArray = []
-    for(let key in pagesJson) {
+    for (let key in pagesJson) {
         if (num.toString() === pagesJson[key].page.toString()) {
             pageArray.push(pagesJson[key])
         }
@@ -45,9 +45,27 @@ app.get('/page/*', cors(),function (req, res) {
     res.send(pageObject)
 })
 
+app.get('/maxPage', cors(), function (req, res) {
+    res.send(variables.page.toString());
+})
+
+app.get('/post/*', cors(), function (req, res) {
+    let num = req.path.split('/')[2]
+    let post = ''
+
+    fs.readFile('.\\posts\\' + num.toString() + '.json', "utf8", (err, data) => {
+        if (err) {
+            console.error(err)
+            return
+        }
+        post = JSON.parse(data)
+        res.send(post)
+    })
+})
+
 app.use(express.json());
 
-app.post('/post', cors(), function(req, res, next) {
+app.post('/post', cors(), function (req, res, next) {
     const jsonfile = JSON.stringify(req.body)
 
     res.send("게시되었습니다")
@@ -61,9 +79,9 @@ app.post('/post', cors(), function(req, res, next) {
         "recommendation": 0
     }
 
-    fs.writeFileSync('.\\posts\\'+variables.lastId+'.json', JSON.stringify(post))
+    fs.writeFileSync('.\\posts\\' + variables.lastId + '.json', JSON.stringify(post))
 
-    if (variables.lastId%20 === 0) {
+    if (variables.lastId % 20 === 0) {
         variables.page = variables.page + 1
     }
 
