@@ -31,25 +31,18 @@ app.get('/', function(req, res) {
     res.send(variables.lastId.toString());
 })
 
-app.get('/page', cors(),function (req, res) {
-    if (req.body === undefined) {
-        res.send(JSON.stringify(pagesJson))
-    } else {
-        console.log(req.body)
-        let pageArray = []
-        pagesJson.forEach(element => {
-            if (req.body === element.page) {
-                pageArray.push(element)
-            } else {
-                if (req.body < element.page) {
-                    return false;
-                }
-            }
-        })
-        let pageObject = JSON.stringify(pageArray)
-
-        res.send(JSON.stringify(pageObject))
+app.get('/page/*', cors(),function (req, res) {
+    let num = req.path.split('/')[2]
+    let pageArray = []
+    for(let key in pagesJson) {
+        if (num.toString() === pagesJson[key].page.toString()) {
+            pageArray.push(pagesJson[key])
+        }
     }
+
+    let pageObject = JSON.parse(JSON.stringify(pageArray))
+
+    res.send(pageObject)
 })
 
 app.use(express.json());
