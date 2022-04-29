@@ -23,7 +23,7 @@ fs.readFile('resource/page.json', "utf8", (err, data) => {
 })
 
 let corsOption = {
-    origin: "http://222.100.125.234:8080",
+    origin: "http://localhost:8080",
     credentials: true,
 }
 
